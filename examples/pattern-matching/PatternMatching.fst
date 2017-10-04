@@ -258,6 +258,77 @@ let solve_mp #a (problem: matching_problem)
 
 #set-options "--lax"
 
+let bind_opt o f =
+  match o with
+  | None -> None
+  | Some x -> f x
+
+// bind_opt (fun a b c -> asd a b c) (locate_var a)
+//   ⇒ (fun b c -> asd a_located b c)
+
+// match arg4 with
+// | None -> None
+// | Some x4 -> match arg3 with
+//             | None -> None
+//             | Some x3 -> match arg2 with
+//                         | None -> None
+//                         | Some x2 -> match arg1 with
+//                                     | None -> None
+//                                     | Some x1 -> f x1 x2 x3 x4
+
+// match arg1 with
+// | None -> None
+// | Some x1 -> match arg2 with
+//             | None -> None
+//             | Some x2 -> match arg3 with
+//                         | None -> None
+//                         | Some x3 -> match arg4 with
+//                                     | None -> None
+//                                     | Some x4 -> f x1 x2 x3 x4
+
+// bind (locate arg1)
+//      (fun x1 -> bind (locate arg2)
+//                   (fun x2 -> bind (locate arg3)
+//                                (fun x3 -> bind (locate arg4)
+//                                             (fun x4 -> f x1 x2 x3 x4))))
+
+let arg_type_of_binder_kind binder_kind : Tac term =
+  match binder_kind with
+  | ABKNone -> quote_lid ["Type"] ()
+  | ABKHyp -> quote_lid ["FStar"; "Reflection"; "Types"; "binder"] ()
+  | ABKGoal -> quote_lid ["Prims"; "unit"] ()
+
+let locate_and_bind_hyp solution binder_name continuation =
+  bind_opt (List.Tot.assoc binder_name solution.ms_hyps) continuation
+
+let locate_and_bind_vars solution binder_name continuation =
+  bind_opt (List.Tot.assoc binder_name solution.ms_vars) continuation
+
+let locate_and_bind_unit _solution _binder_name continuation =
+  continuation ()
+
+let locateandbind_fn_of_binder_kind binder_kind =
+  match binder_kind with
+  | ABKNone -> quote_lid ["PatternMatching"; "locate_and_bind_hyp"] ()
+  | ABKHyp -> quote_lid ["PatternMatching"; "locate_and_bind_vars"] ()
+  | ABKGoal -> quote_lid ["PatternMatching"; "locate_and_bind_unit"] ()
+
+let rec make_applied (solution_term: term)
+                     (fn_term: term)
+                     (fn_argspecs: list (abspat_binder_kind * var))
+                     (args_acc: list argv) : Tac term =
+  match fn_argspecs with
+  | [] -> mk_app fn_term (List.rev args_acc)
+  | (binder_kind, binder_name) :: argspecs ->
+    let arg = fresh_binder (arg_type_of_binder_kind binder_kind) in
+    let args_acc = (pack (Tv_Var arg), Q_Explicit) :: args_acc in
+    let fn_term = make_applied solution_term fn_term fn_argspecs args_acc in
+    let binder_name_term = pack (Tv_Const (C_String binder_name)) in
+    mk_app (locateandbind_fn_of_binder_kind binder_kind)
+           [(solution_term, Q_Explicit);
+            (binder_name_term, Q_Explicit);
+            (pack (Tv_Abs arg fn_term), Q_Explicit)]
+
 let apply_matching_solution #a
                             (problem: matching_problem)
                             (continuation: abspat_continuation)
@@ -285,14 +356,18 @@ let apply_matching_solution #a
          | ABKGoal -> (quote () (), Q_Explicit))
       vars in
 
-  let vars, continuation_fn = continuation in
+  let argspecs, continuation_fn = continuation in
 
   fun solution ->
-    let applied = mk_app continuation_fn (compute_args vars solution) in
+  let solution_binder = fresh_binder (quote matching_solution ()) in
+    let applied = mk_app continuation_fn (compute_args argspecs solution) in
     print ("Constructed this term: " ^ (term_to_string applied)) ();
-    let tm_unit = quote unit () in
-    let binder = fresh_binder tm_unit in
-    let thunked = pack (Tv_Abs binder applied) in
+
+    let solution_binder = fresh_binder (quote matching_solution ()) in
+    let applied2 = make_applied (pack (Tv_Var solution_binder)) continuation_fn argspecs [] in
+    print ("Constructed that term: " ^ (term_to_string applied2)) ();
+
+    let thunked = pack (Tv_Abs solution_binder applied) in
     let unquoted = unquote #(unit -> Tac a) thunked () in
     unquoted ()
 
