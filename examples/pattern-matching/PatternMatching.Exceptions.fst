@@ -23,7 +23,7 @@ let string_of_match_exception = function
   | SimpleMismatch (pat, tm) ->
     "Match failure (sort mismatch): expecting " ^ desc_of_pattern pat ^ ", got " ^ term_to_string tm
   | NonLinearMismatch (nm, t1, t2) ->
-    "Match failure (nonlinear mismatch): variable " ^ nm ^
+    "Match failure (nonlinear mismatch): variable " ^ (inspect_bv nm) ^
     " needs to match both " ^ (term_to_string t1) ^ " and " ^ (term_to_string t2)
   | UnsupportedTermInPattern tm ->
     "Match failure (unsupported term in pattern): " ^ term_to_string tm

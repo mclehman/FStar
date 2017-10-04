@@ -10,17 +10,19 @@ type bindings = list (var * term)
 
 let string_of_bindings (bindings: bindings) =
   String.concat "\n"
-    (List.Tot.map (fun (nm, tm) -> (">> " ^ nm ^ ": " ^ term_to_string tm))
+    (List.Tot.map (fun (nm, tm) -> (">> " ^ (inspect_bv nm) ^ ": " ^ term_to_string tm))
                   bindings)
 
 /// Pattern interpretation
 /// ======================
 
+let eqvar : eqtype = admit(); var
+
 let rec interp_pattern_aux (pat: pattern) (tm: term) (cur_bindings: bindings)
     : match_res bindings =
   let interp_any () =
     return [] in
-  let interp_var (v: var) =
+  let interp_var (v: eqvar) =
     match List.Tot.assoc v cur_bindings with
     | Some tm' -> if term_eq tm tm' then return cur_bindings
                  else raise (NonLinearMismatch (v, tm, tm'))
@@ -57,7 +59,7 @@ let any_qn = ["PatternMatching"; "__"]
 (** Compile a β-reduced term into a pattern **)
 let rec pattern_of_term_ex tm : match_res pattern =
   match inspect tm with
-  | Tv_Var bv -> return (SPVar (inspect_bv bv))
+  | Tv_Var bv -> return (SPVar bv)
   | Tv_FVar fv ->
     let qn = inspect_fv fv in
     return (if qn = any_qn then SPAny else SPQn qn)
@@ -128,9 +130,6 @@ noeq type matching_solution =
   { ms_vars: list (var * term);
     ms_hyps: list (var * hypothesis) }
 
-// let trytac' #a #b (t: a -> Tac b) : a -> Tac (option b) =
-//   fun aa -> trytac (fun () -> t aa) ()
-
 /// Notations
 /// ---------
 
@@ -159,7 +158,7 @@ type abspat_continuation =
 let classify_abspat_binder binder : Tac (abspat_binder_kind * term) =
   admit ();
 
-  let var = "v" in
+  let var = fresh_binder (quote Type ()) in
   let hyp_pat = SPApp (SPQn erased_hyp_qn) (SPVar var) in
   let goal_pat = SPApp (SPQn erased_goal_qn) (SPVar var) in
 
@@ -180,27 +179,30 @@ let matching_problem_of_abs (tm: term) : Tac (matching_problem * abspat_continua
   let problem =
     tacfold_left
       (fun problem (binder: binder) ->
-         let bv_name = inspect_bv binder in
          print ("Got binder: " ^ (inspect_bv binder)) ();
          let binder_kind, typ = classify_abspat_binder binder in
          print ("Compiling binder " ^ inspect_bv binder ^
                 ", classified as " ^ string_of_abspat_binder_kind binder_kind ^
                 ", with type " ^ term_to_string typ) ();
          match binder_kind with
-         | ABKNone -> { problem with mp_vars = bv_name :: problem.mp_vars }
-         | ABKHyp -> print (string_of_pattern (pattern_of_term typ)) (); { problem with mp_hyps = (bv_name, (pattern_of_term typ)) :: problem.mp_hyps }
+         | ABKNone -> { problem with mp_vars = binder :: problem.mp_vars }
+         | ABKHyp -> print (string_of_pattern (pattern_of_term typ)) (); { problem with mp_hyps = (binder, (pattern_of_term typ)) :: problem.mp_hyps }
          | ABKGoal -> { problem with mp_goal = Some (pattern_of_term typ) })
       ({ mp_vars = []; mp_hyps = []; mp_goal = None })
       binders in
 
   let continuation =
     let continuation_arg_of_binder binder =
-      (fst (classify_abspat_binder binder), inspect_bv binder) in
+      print ("Building binder arg for continuation: " ^ (inspect_bv binder)) ();
+      (fst (classify_abspat_binder binder), binder) in
     (tacmap continuation_arg_of_binder binders, tm) in
+
+  print "AA" ();
   let mp =
     { mp_vars = List.rev #var problem.mp_vars;
       mp_hyps = List.rev #(var * pattern) problem.mp_hyps;
       mp_goal = problem.mp_goal } in
+  print "BB" ();
   mp, continuation
 
 /// Resolution
@@ -267,7 +269,7 @@ let apply_matching_solution #a
   let locate_var #a (alist: list (var * a)) var : Tac a =
     match List.Tot.assoc var alist with
     | Some tm -> tm
-    | None -> fail ("No binding for " ^ var) () in
+    | None -> fail ("No binding for " ^ (inspect_bv var)) () in
 
   let locate_hyp solution hyp =
     let tm = locate_var solution.ms_hyps hyp in
@@ -293,8 +295,9 @@ let apply_matching_solution #a
     let tm_unit = quote unit () in
     let binder = fresh_binder tm_unit in
     let thunked = pack (Tv_Abs binder applied) in
-    let unquoted = unquote #(unit -> Tac a) thunked () in
-    unquoted ()
+    fail "A" ()
+    // let unquoted = unquote #(unit -> Tac a) thunked () in
+    // unquoted ()
 
 #reset-options
 
@@ -311,6 +314,7 @@ let mp_example : matching_problem =
                          print (inspect_bv h1);;
                          print (inspect_bv h2)) () in
       let mp, continuation = matching_problem_of_abs abs in
+      print "AAA" ();
       // let qq = quote mp () in
       // print_term qq ();
       exact (quote mp) ())
@@ -349,14 +353,17 @@ let mgw #a #b (abspat: a) : tactic b =
 
 // Need to solve the problem in Minimal.fst
 
+#set-options "--print_implicits --print_bound_var_types --ugly --print_full_names"
+
 let example (p1 p2: Type0) =
   assert_by_tactic (p1 ==> (p1 ==> p2) ==> p2)
                    (_ <-- implies_intros;
-                    mgw (fun (a b: Type) (h1: hyp (a ==> b)) (h2: hyp (a)) (_: goal (squash b)) ->
+                    mgw (fun (a b: Type) (h1: hyp (a ==> b)) (h2: hyp (a)) ((): goal (squash b)) ->
                             let open FStar.Tactics in
                             print (inspect_bv h1) ();
                             print (inspect_bv h2) ();
                             idtac ()))
+
 
 // let __ =
 //   assert_by_tactic (1 == 1)

@@ -2,7 +2,7 @@ module PatternMatching.Types
 
 open FStar.Tactics
 
-type var = string
+type var = binder
 type qn = list string
 
 type pattern =

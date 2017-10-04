@@ -32,7 +32,7 @@ let desc_of_pattern = function
 
 let rec string_of_pattern = function
 | SPAny -> "__"
-| SPVar x -> "?" ^ x
+| SPVar x -> "?" ^ (inspect_bv x)
 | SPQn qn -> string_of_qn qn
 | SPApp l r -> "(" ^ string_of_pattern l ^ " "
               ^ string_of_pattern r ^ ")"
