@@ -909,9 +909,7 @@ let rec norm : cfg -> env -> stack -> term -> term =
             rebuild cfg env stack t
 
           | Tm_app(hd, args)
-            when U.is_fstar_tactics_embed hd
-              || (U.is_fstar_tactics_quote hd && List.contains NoDeltaSteps cfg.steps)
-              || U.is_fstar_tactics_by_tactic hd ->
+            when U.is_fstar_tactics_by_tactic hd ->
             let args = closures_as_args_delayed cfg env args in
             let hd = closure_as_term cfg env hd in
             let t = {t with n=Tm_app(hd, args)} in
@@ -1485,6 +1483,9 @@ let rec norm : cfg -> env -> stack -> term -> term =
                         (* meta doesn't block reduction, but we need to put the label back *)
                         norm cfg env (Meta(m,r)::stack) head
 
+                        (* blocking reduction for these *)
+                      | Meta_quoted _
+                      | Meta_antiquoted
                       | Meta_alien _ ->
                         rebuild cfg env stack t
 

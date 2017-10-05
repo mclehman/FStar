@@ -67,8 +67,8 @@ open FStar_String
 %token PRIVATE REIFIABLE REFLECTABLE REIFY LBRACE_COLON_PATTERN PIPE_RIGHT
 %token NEW_EFFECT SUB_EFFECT SQUIGGLY_RARROW TOTAL
 %token REQUIRES ENSURES
-%token MINUS COLON_EQUALS
-%token BACKTICK UNIV_HASH
+%token MINUS COLON_EQUALS BACKTICK TICK QUOTE
+%token UNIV_HASH
 
 %token<string>  OPPREFIX OPINFIX0a OPINFIX0b OPINFIX0c OPINFIX0d OPINFIX1 OPINFIX2 OPINFIX3 OPINFIX4
 
@@ -91,7 +91,7 @@ open FStar_String
 %right    OPINFIX1
 %left     OPINFIX2 MINUS
 %left     OPINFIX3
-%left     BACKTICK
+%left     BACKTICK TICK QUOTE
 %right    OPINFIX4
 
 %start inputFragment
@@ -667,6 +667,15 @@ tmEq:
       { mk_term (Op(mk_ident("-", rhs parseState 2), [e1; e2])) (rhs2 parseState 1 3) Un}
   | MINUS e=tmEq
       { mk_uminus e (rhs parseState 1) (rhs2 parseState 1 2) Expr }
+  | QUOTE e=tmEq
+      { let rng = rhs2 parseState 1 3 in
+        let q = mk_term (Quote e) rng Un in
+        let pat = mk_pattern PatWild rng in
+        mk_term (Abs ([pat], q)) rng Un }
+  | BACKTICK e=tmEq
+      { mk_term (Quote e) (rhs2 parseState 1 3) Un }
+  | TICK e=tmEq
+      { mk_term (Antiquote e) (rhs2 parseState 1 3) Un }
   | e=tmNoEq
       { e }
 

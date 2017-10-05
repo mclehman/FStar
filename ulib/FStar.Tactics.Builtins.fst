@@ -22,19 +22,6 @@ assume private val __cur_witness : __tac term
 (** [cur_witness] returns the current goal's witness *)
 let cur_witness = fun () -> TAC?.reflect __cur_witness
 
-(*
- * This is the way we inspect goals and any other term. We can quote them
- * to turn them into a representation of them. Having a total function
- * that does this is completely unsound (1 + 1 == 2, but not syntactically,
- * contradiction).
- *
- * So, we encapsulate the syntax inspection effect as a tactic (in the TAC effect)
- * so it cannot taint user code (pure or impure!). The cleanest way would be to directly
- * assume __embed as a `a -> tactic term` computation (TODO?)
- *)
-assume private val __embed  : #a:Type -> a -> term
-unfold let quote #a (x:a) : tactic term = fun () -> __embed x
-
 assume private val __tc : term -> __tac term
 (** [tc] returns the type of a term in the current environment,
 or fails if it is untypeable. *)

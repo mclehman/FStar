@@ -85,6 +85,8 @@ type term' =
   | Assign    of ident * term
   | Discrim   of lid   (* Some?  (formerly is_Some) *)
   | Attributes of list<term>   (* attributes decorating a term *)
+  | Quote     of term
+  | Antiquote of term
 
 and term = {tm:term'; range:range; level:level}
 

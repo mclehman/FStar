@@ -895,6 +895,10 @@ and p_noSeqTerm' e = match (unparen e).tm with
     group (str "function" ^/^ separate_map hardline p_patternBranch branches)
   | Assign (id, e) ->
       group (p_lident id ^/^ larrow ^/^ p_noSeqTerm e)
+  | Quote e ->
+    group (str "`" ^^ p_noSeqTerm e)
+  | Antiquote e ->
+    group (str "´" ^^ p_noSeqTerm e)
   | _ -> p_typ e
 
 and p_typ e = with_comment p_typ' e e.range
@@ -1199,6 +1203,8 @@ and p_projectionLHS e = match (unparen e).tm with
   | Ensures _   (* p_noSeqTerm *)
   | Assign _    (* p_noSeqTerm *)
   | Attributes _(* p_noSeqTerm *)
+  | Quote _
+  | Antiquote _
     -> soft_parens_with_nesting (p_term e)
 
 and p_constant = function

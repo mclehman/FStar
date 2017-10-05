@@ -6,6 +6,7 @@ open FStar.Reflection.Data
 open FStar.Syntax.Syntax
 open FStar.Syntax.Embeddings
 open FStar.Order
+open FStar.Errors
 
 module S = FStar.Syntax.Syntax // TODO: remove, it's open
 
@@ -40,21 +41,6 @@ module Env = FStar.TypeChecker.Env
   * We should really allow for some metaprogramming in F*. Oh wait....
   *)
 
-let lid_as_tm l = S.lid_as_fv l Delta_constant None |> S.fv_to_tm
-let fstar_refl_embed = lid_as_tm PC.fstar_refl_embed_lid
-
-let protect_embedded_term (t:typ) (x:term) =
-    S.mk_Tm_app fstar_refl_embed [S.iarg t; S.as_arg x] None x.pos
-
-let un_protect_embedded_term (t : term) : term =
-    let head, args = U.head_and_args (U.unmeta t) in
-    match (U.un_uinst head).n, args with
-    | Tm_fvar fv, [_; (x, _)]
-        when S.fv_eq_lid fv PC.fstar_refl_embed_lid ->
-      x
-    | _ ->
-      failwith (BU.format1 "Not a protected embedded term: %s" (Print.term_to_string t))
-
 let embed_binder (b:binder) : term =
     U.mk_alien fstar_refl_binder b "reflection.embed_binder" None
 
@@ -65,10 +51,14 @@ let embed_binders l = embed_list embed_binder fstar_refl_binder l
 let unembed_binders t = unembed_list unembed_binder t
 
 let embed_term (t:term) : term =
-    protect_embedded_term S.tun t
+    S.mk (Tm_meta (tun, Meta_quoted (t, ()))) None t.pos
 
-let unembed_term (t:term) : term =
-    un_protect_embedded_term t
+let rec unembed_term (t:term) : term =
+    match (SS.compress t).n with
+    | Tm_meta ({n = _}, Meta_quoted (qt, qi)) -> qt
+    | Tm_meta (t, _) -> unembed_term t
+    | Tm_ascribed (t, _, _) -> unembed_term t
+    | _ -> raise (Error (BU.format1 "Not an embedded term: %s" (Print.term_to_string t), t.pos))
 
 let embed_fvar (fv:fv) : term =
     U.mk_alien fstar_refl_fvar fv "reflection.embed_fvar" None

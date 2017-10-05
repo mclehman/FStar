@@ -22,6 +22,7 @@ type token =
   | TRUE
   | TOTAL
   | TILDE of (string)
+  | TICK
   | THEN
   | SUB_EFFECT
   | SUBTYPE
@@ -39,6 +40,7 @@ type token =
   | RBRACK
   | RBRACE
   | RARROW
+  | QUOTE
   | QMARK_DOT
   | QMARK
   | PRIVATE
@@ -157,6 +159,7 @@ type tokenId =
     | TOKEN_TRUE
     | TOKEN_TOTAL
     | TOKEN_TILDE
+    | TOKEN_TICK
     | TOKEN_THEN
     | TOKEN_SUB_EFFECT
     | TOKEN_SUBTYPE
@@ -174,6 +177,7 @@ type tokenId =
     | TOKEN_RBRACK
     | TOKEN_RBRACE
     | TOKEN_RARROW
+    | TOKEN_QUOTE
     | TOKEN_QMARK_DOT
     | TOKEN_QMARK
     | TOKEN_PRIVATE
