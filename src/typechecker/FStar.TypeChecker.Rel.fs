@@ -2715,6 +2715,10 @@ let discharge_guard' use_env_range_msg env (g:guard_t) (use_smt:bool) : option<g
       then Errors.diag (Env.get_range env)
                        (BU.format1 "Before normalization VC=\n%s\n" (Print.term_to_string vc));
       let vc = N.normalize [N.Eager_unfolding; N.Simplify; N.Primops] env vc in
+      if Env.debug env <| Options.Other "Norm"
+      || Env.debug env <| Options.Other "SMTQuery"
+      then Errors.diag (Env.get_range env)
+                       (BU.format1 "After normalization VC=\n%s\n" (Print.term_to_string vc));
       match check_trivial vc with
       | Trivial -> Some ret_g
       | NonTrivial vc ->
@@ -2749,6 +2753,10 @@ let discharge_guard' use_env_range_msg env (g:guard_t) (use_smt:bool) : option<g
                                          (BU.format2 "Trying to solve:\n> %s\nWith proof_ns:\n %s\n"
                                                  (Print.term_to_string goal)
                                                  (Env.string_of_proof_ns env));
+                        if Env.debug env <| Options.Other "Norm"
+                        || Env.debug env <| Options.Other "SMTQuery"
+                        then Errors.diag (Env.get_range env)
+                                         (BU.format1 "Before calling solver VC=\n%s\n" (Print.term_to_string vc));
                         let res = env.solver.solve use_env_range_msg env goal in
                         FStar.Options.pop ();
                         res
