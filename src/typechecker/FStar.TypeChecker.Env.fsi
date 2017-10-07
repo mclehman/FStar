@@ -261,3 +261,8 @@ val pop_proof_ns    : env -> env
 val get_proof_ns    : env -> proof_namespace
 val set_proof_ns    : proof_namespace -> env -> env
 val string_of_proof_ns : env -> string
+
+(* Check that all free variables of the term are defined in the environment *)
+val unbound_vars    : env -> term -> BU.set<bv>
+val closed          : env -> term -> bool
+val closed'         : term -> bool
