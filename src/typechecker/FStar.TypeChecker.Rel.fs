@@ -2724,6 +2724,11 @@ let discharge_guard' use_env_range_msg env (g:guard_t) (use_smt:bool) : option<g
       match check_trivial vc with
       | Trivial -> Some ret_g
       | NonTrivial vc ->
+        let unbound = Env.unbound_vars env vc in
+        if not (BU.set_is_empty unbound)
+          then raise (Error(BU.format1 "Unexpected: VC is not closed (%s)"
+                                       (Print.binders_to_string ", " (List.map S.mk_binder (set_elements unbound))),
+                            Env.get_range env));
         if not use_smt then (
             if Env.debug env <| Options.Other "Rel" then
                 Errors.diag (Env.get_range env)
