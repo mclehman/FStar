@@ -259,15 +259,19 @@ let quals_to_string' quals =
    (higher-order unification) produces types containing lots of
    redexes that should first be reduced. *)
 let rec term_to_string x =
+  let isSome x = match x with | Some _ -> true | _ -> false in
   if not (Options.ugly()) then
     let e = Resugar.resugar_term x in
     let d = ToDocument.term_to_document e in
     Pp.pretty_string (float_of_string "1.0") 100 d
   else begin
-      let x = Subst.compress x in
       let x = if Options.print_implicits() then x else unmeta x in
       match x.n with
-      | Tm_delayed _ ->   failwith "impossible"
+      | Tm_delayed _ -> term_to_string (Subst.compress x)
+      | Tm_uvar (u, _) when isSome (Unionfind.find u) ->
+            if Options.show_uvar_indirections ()
+            then "[[" ^ term_to_string (Subst.compress x) ^ "]]"
+            else term_to_string (Subst.compress x)
       | Tm_app(_, []) ->  failwith "Empty args!"
 
       | Tm_meta(t, Meta_pattern ps) ->

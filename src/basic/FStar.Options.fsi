@@ -165,6 +165,7 @@ val should_extract              : string  -> bool
 val should_verify               : string  -> bool
 val should_verify_file          : string  -> bool
 val silent                      : unit    -> bool
+val show_uvar_indirections      : unit    -> bool
 val smtencoding_elim_box        : unit    -> bool
 val smtencoding_nl_arith_default: unit    -> bool
 val smtencoding_nl_arith_wrapped: unit    -> bool

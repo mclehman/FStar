@@ -172,6 +172,7 @@ let defaults =
       ("record_hints"                 , Bool false);
       ("reuse_hint_for"               , Unset);
       ("show_signatures"              , List []);
+      ("show_uvar_indirections"       , Bool false);
       ("silent"                       , Bool false);
       ("smt"                          , Unset);
       ("smtencoding.elim_box"         , Bool false);
@@ -279,6 +280,7 @@ let get_query_stats             ()      = lookup_opt "query_stats"              
 let get_record_hints            ()      = lookup_opt "record_hints"             as_bool
 let get_reuse_hint_for          ()      = lookup_opt "reuse_hint_for"           (as_option as_string)
 let get_show_signatures         ()      = lookup_opt "show_signatures"          (as_list as_string)
+let get_show_uvar_indirections  ()      = lookup_opt "show_uvar_indirections"   as_bool
 let get_silent                  ()      = lookup_opt "silent"                   as_bool
 let get_smt                     ()      = lookup_opt "smt"                      (as_option as_string)
 let get_smtencoding_elim_box    ()      = lookup_opt "smtencoding.elim_box"     as_bool
@@ -748,6 +750,11 @@ let rec specs_with_types () : list<(char * string * opt_type * string)> =
         "Show the checked signatures for all top-level symbols in the module");
 
        ( noshort,
+        "show_uvar_indirections",
+        Const (mk_bool true),
+        "For debugging: put [[..]] around resolved uvar subterms");
+
+       ( noshort,
         "silent",
         Const (mk_bool true),
         " ");
@@ -957,6 +964,7 @@ let settable = function
     | "prn"
     | "query_stats"
     | "show_signatures"
+    | "show_uvar_indirections"
     | "silent"
     | "smtencoding.elim_box"
     | "smtencoding.nl_arith_repr"
@@ -1177,6 +1185,7 @@ let query_stats                  () = get_query_stats                 ()
 let record_hints                 () = get_record_hints                ()
 let reuse_hint_for               () = get_reuse_hint_for              ()
 let silent                       () = get_silent                      ()
+let show_uvar_indirections       () = get_show_uvar_indirections      ()
 let smtencoding_elim_box         () = get_smtencoding_elim_box        ()
 let smtencoding_nl_arith_native  () = get_smtencoding_nl_arith_repr () = "native"
 let smtencoding_nl_arith_wrapped () = get_smtencoding_nl_arith_repr () = "wrapped"
