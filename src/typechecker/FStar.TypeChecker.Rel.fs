@@ -974,7 +974,7 @@ let imitation_sub_probs orig env scope (ps:args) (qs:list<(option<binder> * vari
                       let b = ({b with sort=t}), imp in
                       //THE PREVIOUS LINE IS IMPORTANT, using b as leads to unification introducing a cycle
                       //see examples/bug-reports/UnificationCrash.fst
-                      Some b, b::scope, U.arg_of_non_null_binder b::args
+                      Some b, scope@[b], args@[U.arg_of_non_null_binder b]
                     | _ -> None, scope, args in
 
                 let sub_probs, tcs, f = aux scope args qs in
