@@ -35,6 +35,7 @@ module BU = FStar.Util
 let _z3hash_checked : ref<bool> = BU.mk_ref false
 
 let _z3hash_expected = "1f29cebd4df6"
+let _z3hash_expected2 = "1f29cebd4df633a4fea50a29b80aa756ecd0e8e7"
 
 let _z3url = "https://github.com/FStarLang/binaries/tree/master/z3-tested"
 
@@ -46,7 +47,7 @@ let parse_z3_version_lines out =
             let parts = split trimmed " " in
             let rec aux = function
             | [hash] ->
-              if hash = _z3hash_expected
+              if hash = _z3hash_expected || hash = _z3hash_expected2
               then begin
                   if Options.debug_any ()
                   then
