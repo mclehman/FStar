@@ -325,7 +325,7 @@
         "typing_FStar.UInt64.v", "typing_Prims.pow2", "unit_typing"
       ],
       0,
-      "fc40ff9ec6f1c6089ef03bb74fd881ca"
+      "5bc97d2a1cdf9abb70c0bc9d058dc568"
     ],
     [
       "FStar.UInt128.add",
@@ -460,7 +460,7 @@
         "typing_FStar.UInt64.add_underspec", "typing_FStar.UInt64.v"
       ],
       0,
-      "c8fde53cb7c5a47f48e83561c5862136"
+      "24598a0006d8373f6be5e14890852076"
     ],
     [
       "FStar.UInt128.mod_mod",
@@ -987,7 +987,7 @@
         "typing_FStar.UInt64.sub_mod", "typing_FStar.UInt64.v", "unit_typing"
       ],
       0,
-      "b5bf283e33efa54b95c8f7d327776307"
+      "1b13d4041549e05ff2cc3b470d2db9b8"
     ],
     [
       "FStar.UInt128.sub_mod_pos_ok",
@@ -1108,7 +1108,7 @@
         "typing_FStar.UInt64.sub_mod", "typing_FStar.UInt64.v", "unit_typing"
       ],
       0,
-      "97396d7ed1f2a82abbc167f8cfd2b150"
+      "e59fcf477d19ce02c4fdf659ef948ede"
     ],
     [
       "FStar.UInt128.sub_mod_wrap1_ok",
@@ -1176,7 +1176,7 @@
         "typing_FStar.UInt64.sub_mod", "typing_FStar.UInt64.v", "unit_typing"
       ],
       0,
-      "501e171e9442efd41713cf58ebc8a00a"
+      "36e6cd0e4952523370ae3df2ab31758e"
     ],
     [
       "FStar.UInt128.sub_mod_wrap2_ok",
@@ -2885,7 +2885,7 @@
         "typing_Prims.pow2"
       ],
       0,
-      "49f517d1038196e9d7356afeec7a7b54"
+      "2b0eb1e99321050eed49391ae13b369d"
     ],
     [
       "FStar.UInt128.add_u64_shift_left_respec",
@@ -3247,7 +3247,7 @@
         "typing_FStar.UInt32.v"
       ],
       0,
-      "deaf243204b8325d5ac4ee28fddd59ba"
+      "1c1810868a7363c983fcea2bb7ef12f3"
     ],
     [
       "FStar.UInt128.add_u64_shift_right",
@@ -5571,7 +5571,7 @@
         "typing_FStar.UInt64.shift_left", "typing_FStar.UInt64.v"
       ],
       0,
-      "729a9e5823ad818cb6525f0136f839cf"
+      "4eb9d6c9059870a92bb88f42f814cdde"
     ],
     [
       "FStar.UInt128.u32_combine'",

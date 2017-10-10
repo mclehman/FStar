@@ -31,7 +31,7 @@
         "typing_FStar.Seq.Properties.tail", "unit_typing"
       ],
       0,
-      "380e2da72b9698d98a7461f5bc1c44e5"
+      "3b61a5db66fed90e3e2d4e7ed7f9bd48"
     ],
     [
       "FStar.Seq.Sorted.sorted_pred_sorted_lemma",
@@ -131,7 +131,7 @@
         "typing_FStar.Seq.Base.slice", "unit_typing"
       ],
       0,
-      "3e72502d6277d6c86b0ce037b7fc134f"
+      "9efd6f91c1e31b259a566478f32553c8"
     ],
     [
       "FStar.Seq.Sorted.sorted_pred_cons_lemma",
@@ -189,7 +189,7 @@
         "well-founded-ordering-on-nat"
       ],
       0,
-      "898b3edc1c1f48624128d2db3a01c845"
+      "be311eaf39eca3b7f86cc92b7080b1e9"
     ],
     [
       "FStar.Seq.Sorted.sorted_sorted_pred_lemma",
@@ -355,7 +355,7 @@
         "typing_FStar.Seq.Properties.last"
       ],
       0,
-      "dc0a840efc65dee000881f45a3dcfde5"
+      "709666f9626c639bb7c020bcb96d52eb"
     ]
   ]
 ]
