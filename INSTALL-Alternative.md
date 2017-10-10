@@ -16,11 +16,6 @@ This will install F\* and all required dependencies (including Z3):
 
         $ brew install fstar
 
-For building and installing the latest F\* development version from GitHub
-(the `master` branch) instead of the latest release you can do:
-
-        $ brew install --HEAD fstar
-
 ### OPAM package (all platforms)###
 
 **Note:** If you build F\* from sources you will also need to get a Z3
