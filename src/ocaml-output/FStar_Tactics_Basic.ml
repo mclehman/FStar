@@ -2419,28 +2419,72 @@ let uvar_env:
         (fun typ  ->
            let uu____5318 = new_uvar "uvar_env" env typ in
            bind uu____5318 (fun t  -> ret t))
+let unshelve: FStar_Syntax_Syntax.term -> Prims.unit tac =
+  fun t  ->
+    bind cur_goal
+      (fun goal  ->
+         let uu____5334 =
+           try
+             let uu____5362 =
+               (goal.FStar_Tactics_Types.context).FStar_TypeChecker_Env.type_of
+                 goal.FStar_Tactics_Types.context t in
+             ret uu____5362
+           with | e -> fail "unshelve: not typeable" in
+         bind uu____5334
+           (fun uu____5404  ->
+              match uu____5404 with
+              | (t1,typ,guard) ->
+                  let uu____5416 =
+                    let uu____5417 =
+                      let uu____5418 =
+                        FStar_TypeChecker_Rel.discharge_guard
+                          goal.FStar_Tactics_Types.context guard in
+                      FStar_All.pipe_left FStar_TypeChecker_Rel.is_trivial
+                        uu____5418 in
+                    Prims.op_Negation uu____5417 in
+                  if uu____5416
+                  then fail "unshelve: got non-trivial guard"
+                  else
+                    (let uu____5422 =
+                       let uu____5425 =
+                         let uu___154_5426 = goal in
+                         let uu____5427 =
+                           bnorm goal.FStar_Tactics_Types.context t1 in
+                         let uu____5428 =
+                           bnorm goal.FStar_Tactics_Types.context typ in
+                         {
+                           FStar_Tactics_Types.context =
+                             (uu___154_5426.FStar_Tactics_Types.context);
+                           FStar_Tactics_Types.witness = uu____5427;
+                           FStar_Tactics_Types.goal_ty = uu____5428;
+                           FStar_Tactics_Types.opts =
+                             (uu___154_5426.FStar_Tactics_Types.opts);
+                           FStar_Tactics_Types.is_guard = false
+                         } in
+                       [uu____5425] in
+                     add_goals uu____5422)))
 let unify:
   FStar_Syntax_Syntax.term -> FStar_Syntax_Syntax.term -> Prims.bool tac =
   fun t1  ->
     fun t2  ->
       bind get
         (fun ps  ->
-           let uu____5338 =
+           let uu____5444 =
              do_unify ps.FStar_Tactics_Types.main_context t1 t2 in
-           ret uu____5338)
+           ret uu____5444)
 let launch_process:
   Prims.string -> Prims.string -> Prims.string -> Prims.string tac =
   fun prog  ->
     fun args  ->
       fun input  ->
         bind idtac
-          (fun uu____5358  ->
-             let uu____5359 = FStar_Options.unsafe_tactic_exec () in
-             if uu____5359
+          (fun uu____5464  ->
+             let uu____5465 = FStar_Options.unsafe_tactic_exec () in
+             if uu____5465
              then
                let s =
                  FStar_Util.launch_process true "tactic_launch" prog args
-                   input (fun uu____5365  -> fun uu____5366  -> false) in
+                   input (fun uu____5471  -> fun uu____5472  -> false) in
                ret s
              else
                fail
@@ -2453,18 +2497,18 @@ let goal_of_goal_ty:
   =
   fun env  ->
     fun typ  ->
-      let uu____5388 =
+      let uu____5494 =
         FStar_TypeChecker_Util.new_implicit_var "proofstate_of_goal_ty"
           typ.FStar_Syntax_Syntax.pos env typ in
-      match uu____5388 with
-      | (u,uu____5406,g_u) ->
+      match uu____5494 with
+      | (u,uu____5512,g_u) ->
           let g =
-            let uu____5421 = FStar_Options.peek () in
+            let uu____5527 = FStar_Options.peek () in
             {
               FStar_Tactics_Types.context = env;
               FStar_Tactics_Types.witness = u;
               FStar_Tactics_Types.goal_ty = typ;
-              FStar_Tactics_Types.opts = uu____5421;
+              FStar_Tactics_Types.opts = uu____5527;
               FStar_Tactics_Types.is_guard = false
             } in
           (g, g_u)
@@ -2476,8 +2520,8 @@ let proofstate_of_goal_ty:
   =
   fun env  ->
     fun typ  ->
-      let uu____5438 = goal_of_goal_ty env typ in
-      match uu____5438 with
+      let uu____5544 = goal_of_goal_ty env typ in
+      match uu____5544 with
       | (g,g_u) ->
           let ps =
             {
