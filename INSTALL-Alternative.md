@@ -16,6 +16,9 @@ This will install F\* and all required dependencies (including Z3):
 
         $ brew install fstar
 
+Please read the Caveat displayed at the end of the installation if you
+intend to extract code to OCaml, F\# or C.
+
 ### OPAM package (all platforms)###
 
 **Note:** If you build F\* from sources you will also need to get a Z3
