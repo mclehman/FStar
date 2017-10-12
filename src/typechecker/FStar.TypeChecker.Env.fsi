@@ -144,6 +144,8 @@ val should_verify   : env -> bool
 val incr_query_index: env -> env
 val string_of_delta_level : delta_level -> string
 
+val dsenv : env -> FStar.ToSyntax.Env.env
+
 (* Marking and resetting the environment, for the interactive mode *)
 val push               : env -> string -> env
 val pop                : env -> string -> env
